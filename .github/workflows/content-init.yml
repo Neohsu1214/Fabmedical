@@ -21,7 +21,8 @@ env:
   imageRepository: 'content-init'
   resourceGroupName: 'fabmedical-274541'
   containerRegistryName: 'acr274541'
-  containerRegistry: 'acr274541.azurecr.io'  dockerfilePath: './content-init'
+  containerRegistry: 'acr274541.azurecr.io'  
+  dockerfilePath: './content-init'
   tag: '${{ github.run_id  }}'
 
 # Jobs define the actions that take place when code is pushed to the master branch
