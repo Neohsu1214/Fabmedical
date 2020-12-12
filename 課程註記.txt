@@ -42,6 +42,10 @@ docker-compose -f docker-compose.yml -p fabmedical down
 一次讀多個 yml 檔，一起執行
 docker-compose -f docker-compose.yml -f docker-compose.init.yml -p fabmedical up -d
 
+docker compose會將一起執行的 yml 檔啟動的 container 在其內部的 linux /etc/hosts 中加入一起啟動的 container 服務資訊
+預設的 container 名稱為『目錄名稱+服務名稱』
+如果想要自己給定 container名稱的話，則可在 docker-compose 檔案中，給定 container-name 資訊
+
 將所建立的 docker image push 到外部的 Docker Registry
 docker login acr274541.azurecr.io -u 帳號 -p 密碼
 docker image tag content-web acr274541.azurecr.io/content-web
