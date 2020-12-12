@@ -8,7 +8,7 @@ services:
     # docker image 要命名成... 
     image: content-init
     # 告訴 docker-compose 建立的 container 名稱
-    container_name: mongo-ini    
+    #container_name: mongo-ini    
     # 建立內部服務連結名稱（所指定的服務要先起來）
     depends_on:
       - mongo
