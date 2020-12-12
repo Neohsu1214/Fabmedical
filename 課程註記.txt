@@ -1,0 +1,73 @@
+https://bit.ly/3qoZ6i9
+
+ActivationCode: ACTIVATE10250
+
+52.240.54.101
+
+使用 network 連線 mongodb 
+docker container run --name api --net fabmedical -p 3001:3001 -e MONGODB_CONNECTION=mongodb://mongo:27017/contentdb -d content-api
+
+
+docker container run --name web --net fabmedical -P -d content-web
+
+
+Dockerfile中加上
+	ENV CONTENT_API_URL http://localhost:3001
+則在 container 啟動後會加上一個環境參數 CONTENT_API_URL
+node建立的服務則可透過 
+	process.env.CONTENT_API_URL
+取得此環境變數的值
+如果不想在 Dockerfile 中給定此參數
+則可在 docker run 的時候給定 
+	-e CONTENT_API_URL=http://api:3001
+
+docker container run --name web --net fabmedical -P -d -e CONTENT_API_URL=http://api:3001 content-web
+--net fabmedical: 使用自定義 network 
+-e CONTENT_API_URL=http://api:3001 : 直接透過指令給定linux環境變數CONTENT_API_URL
+
+adminfabmedical@fabmedical:~/Fabmedical/content-web$ docker container ls
+CONTAINER ID   IMAGE         COMMAND                  CREATED          STATUS          PORTS                      NAMES
+4fe9a8060b50   content-web   "docker-entrypoint.s…"   7 minutes ago    Up 7 minutes    0.0.0.0:49154->3000/tcp    web
+ea3a31757882   content-api   "docker-entrypoint.s…"   36 minutes ago   Up 36 minutes   0.0.0.0:3001->3001/tcp     api
+d91819d08925   mongo         "docker-entrypoint.s…"   2 hours ago      Up 2 hours      0.0.0.0:27017->27017/tcp   mongo
+
+
+把 yml 檔中定義的 container 一次叫起來
+docker-compose -f docker-compose.yml -p fabmedical up -d
+
+把 yml 檔中定義的 container 移除
+docker-compose -f docker-compose.yml -p fabmedical down
+
+一次讀多個 yml 檔，一起執行
+docker-compose -f docker-compose.yml -f docker-compose.init.yml -p fabmedical up -d
+
+將所建立的 docker image push 到外部的 Docker Registry
+docker login acr274541.azurecr.io -u 帳號 -p 密碼
+docker image tag content-web acr274541.azurecr.io/content-web
+docker image tag content-api acr274541.azurecr.io/content-api
+docker image tag content-init acr274541.azurecr.io/content-init
+docker image push acr274541.azurecr.io/content-web
+docker image push acr274541.azurecr.io/content-api
+docker image push acr274541.azurecr.io/content-init
+但是這樣上去的tag是latest（預設）
+如果想自定義tag名稱，則要參考下動作...
+
+將 docker image 另外獨立一個 tag
+docker image tag acr274541.azurecr.io/content-web:latest acr274541.azurecr.io/content-web:v1
+docker image tag acr274541.azurecr.io/content-api:latest acr274541.azurecr.io/content-api:v1
+docker image tag acr274541.azurecr.io/content-init:latest acr274541.azurecr.io/content-init:v1
+docker image push acr274541.azurecr.io/content-web:v1
+docker image push acr274541.azurecr.io/content-api:v1
+docker image push acr274541.azurecr.io/content-init:v1
+
+
+由Github直接給定 ACR 的 USER_NAME, PASSWORD 的 SECRET 資訊後，建立 Docker image 並 push 到 ACR
+注意，必須要放在 .github/workflows，如此github在收到push事件後，才會自動觸發建制docker image並push到ACR
+mkdir ~/Fabmedical/.github
+mkdir ~/Fabmedical/.github/workflows
+cd ~/Fabmedical/.github/workflows
+vi content-web.yml
+(貼上內容如 content-web.yml)
+git add .
+git commit -m "Add Github CI workflow YAML"
+git push
