@@ -6,7 +6,7 @@ services:
     # 告訴 docker-compose 直接去 docker-hub 要 docker image 下來
     image: mongo
     # 告訴 docker-compose 建立的 container 名稱
-    container_name: mongo
+    #container_name: mongo
     # 服務不能停
     restart: always
     # 建立與 host 端的 volume mapping(目錄對應)
@@ -20,7 +20,7 @@ services:
     # docker image 要命名成... 
     image: content-api
     # 告訴 docker-compose 建立的 container 名稱
-    container_name: api
+    #container_name: api
     # 建立內部服務連結名稱
     depends_on:
       - mongo
@@ -35,7 +35,7 @@ services:
     # docker image 要命名成... 
     image: content-web
     # 告訴 docker-compose 建立的 container 名稱
-    container_name: web
+    #container_name: web
     # 建立內部服務連結名稱
     depends_on:
       - api
