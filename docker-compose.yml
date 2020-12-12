@@ -1,25 +1,41 @@
 version: "3.4"
 
 services:
+  # Service命名為 mongo
   mongo:
+    # 告訴 docker-compose 直接去 docker-hub 要 docker image 下來
     image: mongo
+    # 服務不能停
     restart: always
+    # 建立與 host 端的 volume mapping(目錄對應)
     volumes:
       - ./data:/data/db
+
+  # Service命名為 api
   api:
+    # 告訴 docker-compose 要先幫我執行 docker build (要準備Dockerfile) 的動作
     build: ./content-api
+    # docker image 要命名成... 
     image: content-api
+    # 建立內部服務連結名稱
     depends_on:
       - mongo
+    # 給定 container 內的 linux 環境變數名稱(此例為連線到 mongodb 的連線資訊)
     environment:
       MONGODB_CONNECTION: mongodb://mongo:27017/contentdb
 
+  # Service命名為 web
   web:
+    # 告訴 docker-compose 要先幫我執行 docker build (要準備Dockerfile) 的動作
     build: ./content-web
+    # docker image 要命名成... 
     image: content-web
+    # 建立內部服務連結名稱
     depends_on:
       - api
+    # 給定 container 內的 linux 環境變數名稱(此例為連線到 api 服務)
     environment:
       CONTENT_API_URL: http://api:3001
+    # 建立與 host 端的 port mapping  
     ports:
       - "3000:3000"
