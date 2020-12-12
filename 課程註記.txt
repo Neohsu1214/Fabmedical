@@ -34,6 +34,7 @@ d91819d08925   mongo         "docker-entrypoint.s…"   2 hours ago      Up 2 ho
 
 把 yml 檔中定義的 container 一次叫起來
 docker-compose -f docker-compose.yml -p fabmedical up -d
+-p fabmedical：代表建立container時，用 fabmedical 當 Project Name，若不指定，則會用目錄名稱當預設的 Project Name 來建立 container
 
 把 yml 檔中定義的 container 移除
 docker-compose -f docker-compose.yml -p fabmedical down
