@@ -6,7 +6,7 @@ metadata:
   creationTimestamp: null
   generation: 1
   labels:
-    k8s-app: api
+    k8s-app: web
   managedFields:
   - apiVersion: apps/v1
     fieldsType: FieldsV1
@@ -37,8 +37,14 @@ metadata:
             f:name: {}
           f:spec:
             f:containers:
-              k:{"name":"api"}:
+              k:{"name":"web"}:
                 .: {}
+                f:env:
+                  .: {}
+                  k:{"name":"CONTENT_API_URL"}:
+                    .: {}
+                    f:name: {}
+                    f:value: {}
                 f:image: {}
                 f:imagePullPolicy: {}
                 f:name: {}
@@ -55,7 +61,7 @@ metadata:
             f:terminationGracePeriodSeconds: {}
     manager: dashboard
     operation: Update
-    time: "2020-12-12T14:25:53Z"
+    time: "2020-12-12T15:05:26Z"
   - apiVersion: apps/v1
     fieldsType: FieldsV1
     fieldsV1:
@@ -89,16 +95,16 @@ metadata:
         f:updatedReplicas: {}
     manager: kube-controller-manager
     operation: Update
-    time: "2020-12-12T14:39:35Z"
-  name: api
-  selfLink: /apis/apps/v1/namespaces/default/deployments/api
+    time: "2020-12-12T15:05:27Z"
+  name: web
+  selfLink: /apis/apps/v1/namespaces/default/deployments/web
 spec:
   progressDeadlineSeconds: 600
   replicas: 1
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      k8s-app: api
+      k8s-app: web
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -108,18 +114,16 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
-        k8s-app: api
-      name: api
+        k8s-app: web
+      name: web
     spec:
       containers:
-      - image: localhost:5000/content-api
+      - env:
+        - name: CONTENT_API_URL
+          value: http://api:3001
+        image: localhost:5000/content-web
         imagePullPolicy: Always
-        name: api
-        # 補充Linux環境變數
-        env:
-          # 給定 mongo 資料庫連線資訊
-          - name: MONGODB_CONNECTION
-            value: mongodb://mongo:27017/contentdb
+        name: web
         resources: {}
         securityContext:
           privileged: false
