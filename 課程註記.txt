@@ -1,29 +1,36 @@
-https://bit.ly/3qoZ6i9
-
-ActivationCode: ACTIVATE10250
-
-52.240.54.101
-
+[建立mongo資料庫服務，並開放透過host 3001 port存取]
 使用 network 連線 mongodb 
 docker container run --name api --net fabmedical -p 3001:3001 -e MONGODB_CONNECTION=mongodb://mongo:27017/contentdb -d content-api
-
+--name api: 建立 container 名稱
+--net fabmedical: 
+-p 3001:3001: 建立 host 的 3001 port(前) 對應到 container 的 3001 port(後) 使可存取服務
+-e MONGODB_CONNECTION=mongodb://mongo:27017/contentdb: container建立後給定linex環境變數 MONGODB_CONNECTION
+-d: 背景執行container，並回傳 container ID
 
 docker container run --name web --net fabmedical -P -d content-web
 
-
+[透過Dockerfile建立docker image]
 Dockerfile中加上
 	ENV CONTENT_API_URL http://localhost:3001
 則在 container 啟動後會加上一個環境參數 CONTENT_API_URL
+
 node建立的服務則可透過 
 	process.env.CONTENT_API_URL
 取得此環境變數的值
+
+Springboot建立的服務則可透過
+	System.getenv(CONTENT_API_URL)
+取得此環境變數的值	
+
 如果不想在 Dockerfile 中給定此參數
 則可在 docker run 的時候給定 
 	-e CONTENT_API_URL=http://api:3001
 
+[透過給定linux環境變數於continer啟動後抓取另一個服務之例]
 docker container run --name web --net fabmedical -P -d -e CONTENT_API_URL=http://api:3001 content-web
 --net fabmedical: 使用自定義 network 
 -e CONTENT_API_URL=http://api:3001 : 直接透過指令給定linux環境變數CONTENT_API_URL
+-P: 對host揭露此服務，並給予random port
 
 adminfabmedical@fabmedical:~/Fabmedical/content-web$ docker container ls
 CONTAINER ID   IMAGE         COMMAND                  CREATED          STATUS          PORTS                      NAMES
@@ -31,14 +38,16 @@ CONTAINER ID   IMAGE         COMMAND                  CREATED          STATUS   
 ea3a31757882   content-api   "docker-entrypoint.s…"   36 minutes ago   Up 36 minutes   0.0.0.0:3001->3001/tcp     api
 d91819d08925   mongo         "docker-entrypoint.s…"   2 hours ago      Up 2 hours      0.0.0.0:27017->27017/tcp   mongo
 
-
+[透過 docker-compose 一次建立一群containers]
 把 yml 檔中定義的 container 一次叫起來
 docker-compose -f docker-compose.yml -p fabmedical up -d
 -p fabmedical：代表建立container時，用 fabmedical 當 Project Name，若不指定，則會用目錄名稱當預設的 Project Name 來建立 container
 
+[透過 docker-compose 一次銷毀一群containers]
 把 yml 檔中定義的 container 移除
 docker-compose -f docker-compose.yml -p fabmedical down
 
+[docker-compose可以一次執行多個yml檔，但銷毀也必須是一樣的yml檔]
 一次讀多個 yml 檔，一起執行
 docker-compose -f docker-compose.yml -f docker-compose.init.yml -p fabmedical up -d
 
@@ -46,7 +55,7 @@ docker compose會將一起執行的 yml 檔啟動的 container 在其內部的 l
 預設的 container 名稱為『目錄名稱+服務名稱』
 如果想要自己給定 container名稱的話，則可在 docker-compose 檔案中，給定 container-name 資訊
 
-將所建立的 docker image push 到外部的 Docker Registry
+[將所建立的 docker image push 到外部的 Docker Registry]
 docker login acr274541.azurecr.io -u 帳號 -p 密碼
 docker image tag content-web acr274541.azurecr.io/content-web
 docker image tag content-api acr274541.azurecr.io/content-api
@@ -65,7 +74,7 @@ docker image push acr274541.azurecr.io/content-web:v1
 docker image push acr274541.azurecr.io/content-api:v1
 docker image push acr274541.azurecr.io/content-init:v1
 
-
+[透過Github的workflows於push後自動進行CI並建置docker image後放到指定的 docker registry]
 由Github直接給定 ACR 的 USER_NAME, PASSWORD 的 SECRET 資訊後，建立 Docker image 並 push 到 ACR
 注意，必須要放在 .github/workflows，如此github在收到push事件後，才會自動觸發建制docker image並push到ACR
 mkdir ~/Fabmedical/.github
