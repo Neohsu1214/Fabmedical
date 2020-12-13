@@ -1,90 +1,18 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  creationTimestamp: null
-  labels:
-    controller-uid: fe984ab4-c2bf-4bc8-a832-d12024e99ad5
-    job-name: init
-  managedFields:
-  - apiVersion: batch/v1
-    fieldsType: FieldsV1
-    fieldsV1:
-      f:spec:
-        f:backoffLimit: {}
-        f:completions: {}
-        f:parallelism: {}
-        f:template:
-          f:spec:
-            f:containers:
-              k:{"name":"init"}:
-                .: {}
-                f:env:
-                  .: {}
-                  k:{"name":"MONGODB_CONNECTION"}:
-                    .: {}
-                    f:name: {}
-                    f:value: {}
-                f:image: {}
-                f:imagePullPolicy: {}
-                f:name: {}
-                f:resources: {}
-                f:terminationMessagePath: {}
-                f:terminationMessagePolicy: {}
-            f:dnsPolicy: {}
-            f:restartPolicy: {}
-            f:schedulerName: {}
-            f:securityContext: {}
-            f:terminationGracePeriodSeconds: {}
-    manager: dashboard
-    operation: Update
-    time: "2020-12-12T15:15:23Z"
-  - apiVersion: batch/v1
-    fieldsType: FieldsV1
-    fieldsV1:
-      f:status:
-        f:completionTime: {}
-        f:conditions:
-          .: {}
-          k:{"type":"Complete"}:
-            .: {}
-            f:lastProbeTime: {}
-            f:lastTransitionTime: {}
-            f:status: {}
-            f:type: {}
-        f:startTime: {}
-        f:succeeded: {}
-    manager: kube-controller-manager
-    operation: Update
-    time: "2020-12-12T15:15:26Z"
   name: init
-  selfLink: /apis/batch/v1/namespaces/default/jobs/init
 spec:
-  backoffLimit: 4
-  completions: 1
-  parallelism: 1
-  selector:
-    matchLabels:
-      controller-uid: fe984ab4-c2bf-4bc8-a832-d12024e99ad5
   template:
-    metadata:
-      creationTimestamp: null
-      labels:
-        controller-uid: fe984ab4-c2bf-4bc8-a832-d12024e99ad5
-        job-name: init
     spec:
       containers:
-      - env:
-        - name: MONGODB_CONNECTION
-          value: mongodb://mongo:27017/contentdb
+      - name: init
         image: localhost:5000/content-init
-        imagePullPolicy: Always
-        name: init
-        resources: {}
-        terminationMessagePath: /dev/termination-log
-        terminationMessagePolicy: File
-      dnsPolicy: ClusterFirst
+        env:
+          - name: MONGODB_CONNECTION
+            valueFrom:
+              secretKeyRef:
+                name: mongo
+                key: db
       restartPolicy: Never
-      schedulerName: default-scheduler
-      securityContext: {}
-      terminationGracePeriodSeconds: 30
-status: {}
+  backoffLimit: 4
