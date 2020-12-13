@@ -10,9 +10,6 @@ spec:
         image: localhost:5000/content-init
         env:
           - name: MONGODB_CONNECTION
-            valueFrom:
-              secretKeyRef:
-                name: mongo
-                key: db
+            value: mongodb://mongo:27017/contentdb
       restartPolicy: Never
   backoffLimit: 4
